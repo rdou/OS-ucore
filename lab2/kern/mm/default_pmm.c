@@ -298,7 +298,6 @@ default_check(void) {
     assert(total == nr_free_pages());
 
     basic_check();
-    display_free_list();
     struct Page *p0 = alloc_pages(5), *p1, *p2;
     
     assert(p0 != NULL);
@@ -322,7 +321,6 @@ default_check(void) {
     p2 = p0 + 1;
     free_page(p0);
     free_pages(p1, 3);
-    display_free_list();
     assert(PageProperty(p0) && p0->property == 1);
     assert(PageProperty(p1) && p1->property == 3);
 
@@ -332,11 +330,9 @@ default_check(void) {
 
     free_pages(p0, 2);
     free_page(p2);
-    display_free_list();
 
     assert((p0 = alloc_pages(5)) != NULL);
     assert(alloc_page() == NULL);
-    display_free_list();
 
     assert(nr_free == 0);
     nr_free = nr_free_store;

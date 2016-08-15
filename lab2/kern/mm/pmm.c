@@ -338,15 +338,15 @@ pmm_init(void) {
 
 }
 
-//get_pte - get pte and return the kernel virtual address of this pte for la
-//        - if the PT contians this pte didn't exist, alloc a page for PT
+// get_pte - get pte and return the kernel virtual address of this pte for la
+//         - if the PT contians this pte didn't exist, alloc a page for PT
 // parameter:
 //  pgdir:  the kernel virtual base address of PDT
 //  la:     the linear address need to map
 //  create: a logical value to decide if alloc a page for PT
 // return vaule: the kernel virtual address of this pte
-pte_t *
-get_pte(pde_t *pgdir, uintptr_t la, bool create) {
+pte_t *get_pte( pde_t *pgdir, uintptr_t la, bool create ) 
+{
     /* LAB2 EXERCISE 2: YOUR CODE
      *
      * If you need to visit a physical address, please use KADDR()
@@ -368,18 +368,40 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
      *   PTE_W           0x002                   // page table/directory entry flags bit : Writeable
      *   PTE_U           0x004                   // page table/directory entry flags bit : User can access
      */
-#if 0
-    pde_t *pdep = NULL;   // (1) find page directory entry
-    if (0) {              // (2) check if entry is not present
-                          // (3) check if creating is needed, then alloc page for page table
-                          // CAUTION: this page is used for page table, not for common data page
-                          // (4) set page reference
-        uintptr_t pa = 0; // (5) get linear address of page
-                          // (6) clear page content using memset
-                          // (7) set page directory entry's permission
+    //pde_t *pdep = NULL;   // (1) find page directory entry
+    //if (0) {              // (2) check if entry is not present
+    //                      // (3) check if creating is needed, then alloc page for page table
+    //                      // CAUTION: this page is used for page table, not for common data page
+    //                      // (4) set page reference
+    //    uintptr_t pa = 0; // (5) get linear address of page
+    //                      // (6) clear page content using memset
+    //                      // (7) set page directory entry's permission
+    //}
+    //return NULL;          // (8) return page table entry
+    //
+    uintptr_t pdx, ptx, pt_pa;
+    Page new_page_table; 
+    
+    pdx = PDX( la );
+    ptx = PTX( la );
+
+    if( pgdir[ pdx ] & PTE_P )
+        return ( pte * )pgdir[ pdx ]; 
+    else 
+        if( 0 == create )
+            return NULL;
+        else
+        {
+            new_page_table = alloc_page();
+            set_page_ref( new_page_table, 1 ); 
+            pt_pa = page2pa( new_page_table );
+            memset( ( uintptr_t * )pt_pa, 0, 4096 );
+            pt_pa |= ( PTE_P | PTE_W | PTE_U );
+            pgdir[ pdx ] = pt_pa; 
+
+            return ( pte * )pt_pa;
+        }
     }
-    return NULL;          // (8) return page table entry
-#endif
 }
 
 //get_page - get related Page struct for linear address la using PDT pgdir
