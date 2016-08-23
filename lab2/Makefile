@@ -203,6 +203,7 @@ $(UCOREIMG): $(kernel) $(bootblock) $(kernel_nopage)
 	$(V)dd if=/dev/zero of=$@ count=10000
 	$(V)dd if=$(bootblock) of=$@ conv=notrunc
 	$(V)dd if=$(kernel) of=$@ seek=1 conv=notrunc
+	#$(V)dd if=$(kernel_nopage) of=$@ seek=1 conv=notrunc
 
 $(call create_target,ucore.img)
 
@@ -242,12 +243,12 @@ qemu-nox: targets
 TERMINAL := gnome-terminal
 
 debug: $(UCOREIMG)
-	#$(V)$(QEMU) -S -s -parallel stdio $(QEMUOPTS) -serial null &
-	#$(V)sleep 2
-	#$(V)$(TERMINAL) -e "$(GDB) -q -x tools/gdbinit"
-	$(V)$(QEMU) -S -s -parallel stdio -hda $< -serial null &
+	$(V)$(QEMU) -S -s -parallel stdio $(QEMUOPTS) -serial null &
 	$(V)sleep 2
-	$(V)$(TERMINAL)  -e "cgdb -q -x tools/gdbinit"
+	$(V)$(TERMINAL) -e "$(GDB) -q -x tools/gdbinit"
+	#$(V)$(QEMU) -S -s -parallel stdio -hda $< -serial null &
+	#$(V)sleep 2
+	#$(V)$(TERMINAL)  -e "cgdb -q -x tools/gdbinit"
 
 debug-nox: $(UCOREIMG)
 	$(V)$(QEMU) -S -s -serial mon:stdio $(QEMUOPTS) -nographic &

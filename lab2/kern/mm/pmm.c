@@ -379,15 +379,17 @@ pte_t *get_pte( pde_t *pgdir, uintptr_t la, bool create )
     //}
     //return NULL;          // (8) return page table entry
     //
+    
     uintptr_t pdx, ptx, pt_pa;
-    Page new_page_table; 
+    struct Page *new_page_table; 
     
     pdx = PDX( la );
     ptx = PTX( la );
 
     if( pgdir[ pdx ] & PTE_P )
-        return ( pte * )pgdir[ pdx ]; 
-    else 
+        return ( ( pte_t * )pgdir[ pdx ] )[ ptx ]; 
+    else
+    {
         if( 0 == create )
             return NULL;
         else
@@ -399,7 +401,7 @@ pte_t *get_pte( pde_t *pgdir, uintptr_t la, bool create )
             pt_pa |= ( PTE_P | PTE_W | PTE_U );
             pgdir[ pdx ] = pt_pa; 
 
-            return ( pte * )pt_pa;
+            return ( pte_t * )pt_pa;
         }
     }
 }
@@ -447,6 +449,24 @@ page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
                                   //(6) flush tlb
     }
 #endif
+    uintptr_t pdx, ptx, pt_pa;
+    struct Page *rm_page_table; 
+    
+    pdx = PDX( la );
+    ptx = PTX( la );
+    
+    if( pgdir[ pdx ] & PTE_P )
+    {
+        ptep = ( ( pte_t * )pgdir[ pdx ] )[ ptx ];
+        rm_page_table = pte2page( ptep );
+        page_ref_dec( rm_page_table );
+
+        if( rm_page_table->ref == 0 )
+            free_page( rm_page_table );
+        
+        memset( ptep, 0x0, 4096 );
+        tlb_invalidate( pgdir, la );
+    }
 }
 
 //page_remove - free an Page which is related linear address la and has an validated pte

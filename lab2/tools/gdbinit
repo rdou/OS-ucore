@@ -1,3 +1,4 @@
+file bin/kernel
 target remote :1234
-file obj/kern/mm/default_pmm.o
-break 234
+break kern_init 
+c

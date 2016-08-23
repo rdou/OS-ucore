@@ -8194,9 +8194,6 @@ char	obj/kernel.asm	/^char *$/;"	l
 char	obj/kernel_nopage.asm	/^char *$/;"	l
 charcode	kern/driver/console.c	/^static uint8_t *charcode[4] = {$/;"	v	file:
 check	kern/mm/pmm.h	/^    void (*check)(void);                              \/\/ check the correctness of XXX_pmm_manager $/;"	m	struct:pmm_manager
-check_alloc_page	kern/mm/pmm.c	/^check_alloc_page(void) {$/;"	f	file:
-check_boot_pgdir	kern/mm/pmm.c	/^check_boot_pgdir(void) {$/;"	f	file:
-check_pgdir	kern/mm/pmm.c	/^check_pgdir(void) {$/;"	f	file:
 check_regexps	tools/grade.sh	/^check_regexps() {$/;"	f
 check_result	tools/grade.sh	/^check_result() {$/;"	f
 clear_bit	libs/atomic.h	/^clear_bit(int nr, volatile void *addr) {$/;"	f
@@ -8351,9 +8348,7 @@ gdt	kern/mm/pmm.c	/^static struct segdesc gdt[] = {$/;"	v	typeref:struct:segdesc
 gdt_init	kern/mm/pmm.c	/^gdt_init(void) {$/;"	f	file:
 gdt_pd	kern/mm/pmm.c	/^static struct pseudodesc gdt_pd = {$/;"	v	typeref:struct:pseudodesc	file:
 gdtdesc	boot/bootasm.S	/^gdtdesc:$/;"	l
-get_page	kern/mm/pmm.c	/^get_page(pde_t *pgdir, uintptr_t la, pte_t **ptep_store) {$/;"	f
-get_pgtable_items	kern/mm/pmm.c	/^get_pgtable_items(size_t left, size_t right, size_t start, uintptr_t *table, size_t *left_store, size_t *right_store) {$/;"	f	file:
-get_pte	kern/mm/pmm.c	/^get_pte(pde_t *pgdir, uintptr_t la, bool create) {$/;"	f
+get_pte	kern/mm/pmm.c	/^pte_t *get_pte( pde_t *pgdir, uintptr_t la, bool create ) $/;"	f
 get_time	tools/grade.sh	/^get_time() {$/;"	f
 getchar	kern/libs/stdio.c	/^getchar(void) {$/;"	f
 getint	libs/printfmt.c	/^getint(va_list *ap, int lflag) {$/;"	f	file:
@@ -8548,13 +8543,10 @@ page2kva	kern/mm/pmm.h	/^page2kva(struct Page *page) {$/;"	f
 page2pa	kern/mm/pmm.h	/^page2pa(struct Page *page) {$/;"	f
 page2ppn	kern/mm/pmm.h	/^page2ppn(struct Page *page) {$/;"	f
 page_init	kern/mm/pmm.c	/^page_init(void) {$/;"	f	file:
-page_insert	kern/mm/pmm.c	/^page_insert(pde_t *pgdir, struct Page *page, uintptr_t la, uint32_t perm) {$/;"	f
 page_link	kern/mm/memlayout.h	/^    list_entry_t page_link;         \/\/ free list link$/;"	m	struct:Page
 page_ref	kern/mm/pmm.h	/^page_ref(struct Page *page) {$/;"	f
 page_ref_dec	kern/mm/pmm.h	/^page_ref_dec(struct Page *page) {$/;"	f
 page_ref_inc	kern/mm/pmm.h	/^page_ref_inc(struct Page *page) {$/;"	f
-page_remove	kern/mm/pmm.c	/^page_remove(pde_t *pgdir, uintptr_t la) {$/;"	f
-page_remove_pte	kern/mm/pmm.c	/^page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {$/;"	f	file:
 pages	kern/mm/pmm.c	/^struct Page *pages;$/;"	v	typeref:struct:Page
 pages	obj/kernel.asm	/^    pages = (struct Page *)ROUNDUP((void *)end, PGSIZE);$/;"	d
 pages	obj/kernel_nopage.asm	/^    pages = (struct Page *)ROUNDUP((void *)end, PGSIZE);$/;"	d
@@ -8567,7 +8559,6 @@ pd_base	libs/x86.h	/^    uintptr_t pd_base;      \/\/ Base address$/;"	m	struct:
 pd_lim	libs/x86.h	/^    uint16_t pd_lim;        \/\/ Limit$/;"	m	struct:pseudodesc
 pde2page	kern/mm/pmm.h	/^pde2page(pde_t pde) {$/;"	f
 pde_t	kern/mm/memlayout.h	/^typedef uintptr_t pde_t;$/;"	t
-perm2str	kern/mm/pmm.c	/^perm2str(int perm) {$/;"	f	file:
 ph	obj/bootblock.asm	/^    ph = (struct proghdr *)((uintptr_t)ELFHDR + ELFHDR->e_phoff);$/;"	d
 pic_enable	kern/driver/picirq.c	/^pic_enable(unsigned int irq) {$/;"	f
 pic_init	kern/driver/picirq.c	/^pic_init(void) {$/;"	f
@@ -8589,7 +8580,6 @@ precision	obj/kernel_nopage.asm	/^            precision = va_arg(ap, int);$/;"	d
 prev	libs/list.h	/^    struct list_entry *prev, *next;$/;"	m	struct:list_entry	typeref:struct:list_entry::list_entry
 print_debuginfo	kern/debug/kdebug.c	/^print_debuginfo(uintptr_t eip) {$/;"	f
 print_kerninfo	kern/debug/kdebug.c	/^print_kerninfo(void) {$/;"	f
-print_pgdir	kern/mm/pmm.c	/^print_pgdir(void) {$/;"	f
 print_regs	kern/trap/trap.c	/^print_regs(struct pushregs *regs) {$/;"	f
 print_stackframe	kern/debug/kdebug.c	/^print_stackframe(void) {$/;"	f
 print_ticks	kern/trap/trap.c	/^static void print_ticks() {$/;"	f	file:
@@ -8811,7 +8801,6 @@ tf_trapno	kern/trap/trap.h	/^    uint32_t tf_trapno;$/;"	m	struct:trapframe
 ticks	kern/driver/clock.c	/^volatile size_t ticks;$/;"	v
 ticks	obj/kernel.asm	/^    ticks = 0;$/;"	d
 ticks	obj/kernel_nopage.asm	/^    ticks = 0;$/;"	d
-tlb_invalidate	kern/mm/pmm.c	/^tlb_invalidate(pde_t *pgdir, uintptr_t la) {$/;"	f
 to_struct	libs/defs.h	64;"	d
 todep	tools/function.mk	/^todep = $(patsubst %.o,%.d,$(call toobj,$(1),$(2)))$/;"	m
 togglecode	kern/driver/console.c	/^static uint8_t togglecode[256] = {$/;"	v	file:
