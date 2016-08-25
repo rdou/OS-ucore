@@ -211,7 +211,7 @@ page_init(void) {
 
     npage = maxpa / PGSIZE;
     pages = (struct Page *)ROUNDUP((void *)end, PGSIZE);
-
+    
     for (i = 0; i < npage; i ++) {
         SetPageReserved(pages + i);
     }
@@ -387,22 +387,25 @@ pte_t *get_pte( pde_t *pgdir, uintptr_t la, bool create )
     ptx = PTX( la );
 
     if( pgdir[ pdx ] & PTE_P )
-        return ( ( pte_t * )pgdir[ pdx ] )[ ptx ]; 
+        return &( ( pte_t * )( KADDR( PDE_ADDR( pgdir[ pdx ] ) ) ) )[ ptx ]; 
     else
     {
         if( 0 == create )
             return NULL;
         else
         {
+            //cprintf( "\n\npages = %08x\n\n",pages );
             new_page_table = alloc_page();
+            //cprintf("new_page_table - pages = 0x%08x\n", new_page_table - pages );
+            //cprintf("new_page_table = 0x%08x\n", new_page_table);
             set_page_ref( new_page_table, 1 ); 
             pt_pa = page2pa( new_page_table );
-            memset( ( uintptr_t * )pt_pa, 0, 4096 );
-            pt_pa |= ( PTE_P | PTE_W | PTE_U );
-            pgdir[ pdx ] = pt_pa; 
-
-            return ( pte_t * )pt_pa;
+            //cprintf("pt_pa = 0x%08x\n", pt_pa);
+            //cprintf("KADDR(pt_pa) = 0x%08x\n", KADDR( pt_pa ));
+            memset( KADDR( pt_pa ), 0, PGSIZE );
+            pgdir[ pdx ] = pt_pa | ( PTE_P | PTE_W | PTE_U ); 
         }
+        return &( ( pte_t * )( KADDR( PDE_ADDR( pgdir[ pdx ] ) ) ) )[ ptx ]; 
     }
 }
 
@@ -449,6 +452,7 @@ page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
                                   //(6) flush tlb
     }
 #endif
+    
     uintptr_t pdx, ptx, pt_pa;
     struct Page *rm_page_table; 
     
@@ -457,14 +461,13 @@ page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
     
     if( pgdir[ pdx ] & PTE_P )
     {
-        ptep = ( ( pte_t * )pgdir[ pdx ] )[ ptx ];
-        rm_page_table = pte2page( ptep );
+        rm_page_table = pte2page( *ptep ); 
         page_ref_dec( rm_page_table );
 
         if( rm_page_table->ref == 0 )
             free_page( rm_page_table );
         
-        memset( ptep, 0x0, 4096 );
+        *ptep = NULL; 
         tlb_invalidate( pgdir, la );
     }
 }
